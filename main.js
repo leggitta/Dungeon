@@ -109,9 +109,11 @@ class Map {
 }
 
 class Character {
-    constructor(name, x, y) {
-        this.x = x * w;
-        this.y = y * h;
+    constructor(name, i, j) {
+        this.i = i;
+        this.j = j;
+        this.x = i * w;
+        this.y = j * h;
         this.w = w;
         this.h = h;
         this.img = new Image();
@@ -123,6 +125,10 @@ class Character {
         // used to animate movement
         this.destination_x = -1;
         this.destination_y = -1;
+
+        // game stats
+        this.armor_class = 10;
+        this.hit_points = 4;
     }
     draw() {
         ctx.drawImage(
@@ -168,8 +174,27 @@ class Character {
             game_state = next_state;
         }
     }
-    attack(target) {
+    attack(target, next_state) {
         // attack the target
+        var attack_roll = roll(20);
+        console.log(attack_roll);
+
+        if (attack_roll >= target.armor_class) {
+            console.log('hit!');
+            var damage_roll = roll(4);
+            console.log(damage_roll);
+            target.take_damage(damage_roll);
+        } else {
+            console.log('miss!');
+        }
+        game_state = next_state;
+    }
+    take_damage(damage) {
+        this.hit_points -= damage;
+        if (this.hit_points < 1) {
+            this.img.src = '#';
+            console.log('unconscious!');
+        }
     }
     end_turn() {
         this.movement = this.speed;
@@ -183,6 +208,12 @@ class Player extends Character {
             this.animate_move("default");
         }
     }
+    attack_tile(i, j) {
+        console.log(i, j, enemy.i, enemy.j);
+        if (i == enemy.i & j == enemy.j) {
+            this.attack(enemy, "player_attack_animation");
+        }
+    }
 }
 
 class Enemy extends Character {
@@ -190,6 +221,8 @@ class Enemy extends Character {
         super.draw();
         if (game_state == "enemy_move_animation") {
             this.animate_move("enemy_attack");
+        } else if (game_state == "enemy_attack") {
+            this.attack(player, "enemy_attack_animation");
         }
     }
     move() {
@@ -215,7 +248,7 @@ class Enemy extends Character {
                     // check that tile is within movement range
                     if (r_ <= this.speed) {
                         // check that target is in range from new tile
-                        if (r_target <= this.range) {
+                        if (r_target <= this.range & r_target > 0) {
                             // check for minimum path
                             if (r_ < min_path) {
                                 destination = [x_, y_];
@@ -244,7 +277,7 @@ class Enemy extends Character {
 
 let map = new Map(10, 5);
 let player = new Player("player", 1, 1);
-let enemy = new Enemy("enemy", 8, 3);
+let enemy = new Enemy("enemy", 1, 2);
 
 
 function draw() {
@@ -297,6 +330,9 @@ function onClick(e) {
         if (i >= 0 & j >= 0) {
             player.move(i, j);
         }
+    } else if (game_state == "player_attack") {
+        console.log("player attacks", i, j);
+        player.attack_tile(i, j);
     }
 }
 
