@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+
+<title>Dungeon</title>
+<style>
+    * {padding: 0; margin: 0}
+    canvas {background: #eee}
+
+    .vertical-menu {
+    width: 200px;
+    }
+
+    .vertical-menu p {
+    background-color: #eee;
+    color: black;
+    display: block;
+    padding: 12px;
+    text-decoration: none;
+    }
+
+    .vertical-menu p:hover {
+    background-color: #ccc;
+    }
+    
+    .vertical-menu p.active {
+    background-color: #4CAF50;
+    color: white;
+    }
+</style>
+
+</head>
+<body>
+    <div style="width: 100%;">
+    <div style="width: 10%; float: left;" class="vertical-menu">
+        <p class="active">Menu</p>
+        <p id="btn_move">Move</p>
+        <p id="btn_attack">Attack</p>
+        <p id="btn_endturn">End Turn</p>
+      </div>
+    <div style="margin-left: 10%;">
+        <canvas id="canvas" width="960" height="640"></canvas>
+        <script src="main.js"></script>
+    </div>
+    </div>
+</body>
+</html>
