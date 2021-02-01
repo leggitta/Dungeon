@@ -23,6 +23,9 @@ var active_i;
 var active_j;
 
 // helper functions
+// ----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
+
 function vector(x0, y0, x1, y1) {
     // determine distance and angle between two points
     var dx = x1 - x0;
@@ -37,6 +40,9 @@ function roll(n) {
 }
 
 // classes
+// ----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
+
 class Tile {
     constructor(i, j) {
         this.i = i;
@@ -119,8 +125,12 @@ class Character {
         this.img = new Image();
         this.img.src = "assets/" + name + ".png";
         this.speed = 30 / 5 * w;
-        this.movement = this.speed;
         this.range = 9 / 5 * w;
+
+        // turn specific properties
+        this.has_action = true;        // does the character have an action this turn?
+        this.has_bonus_action = true;  // does the character have a bonus action this turn?
+        this.movement = this.speed;    // remaining movement this turn
 
         // used to animate movement
         this.destination_x = -1;
@@ -175,11 +185,16 @@ class Character {
         }
     }
     attack(target, next_state) {
+        // expend action (note: this will fail for multi-attack)
+        this.use_action();
+
         // attack the target
         var attack_roll = roll(20);
         console.log(attack_roll);
 
+        // check for hit
         if (attack_roll >= target.armor_class) {
+            // roll damage
             console.log('hit!');
             var damage_roll = roll(4);
             console.log(damage_roll);
@@ -187,7 +202,11 @@ class Character {
         } else {
             console.log('miss!');
         }
+        // advance the game state (note: this will fail for multi-attack)
         game_state = next_state;
+    }
+    use_action() {
+        this.has_action = false;
     }
     take_damage(damage) {
         this.hit_points -= damage;
@@ -212,6 +231,23 @@ class Player extends Character {
         console.log(i, j, enemy.i, enemy.j);
         if (i == enemy.i & j == enemy.j) {
             this.attack(enemy, "player_attack_animation");
+        }
+    }
+    use_action() {
+        super.use_action();
+        // disable action buttons
+        var btn = document.getElementById("btn_attack");
+        btn.classList.add('disabled');
+        btn.classList.remove('enabled');
+    }
+    move(i, j) {
+        super.move(i, j);
+        
+        // disable move buttons
+        if (this.movement < w) {
+            var btn = document.getElementById("btn_move");
+            btn.classList.add('disabled');
+            btn.classList.remove('enabled');
         }
     }
 }
@@ -274,11 +310,13 @@ class Enemy extends Character {
     }
 }
 
+// class instances
+// ----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
 let map = new Map(10, 5);
 let player = new Player("player", 1, 1);
 let enemy = new Enemy("enemy", 1, 2);
-
 
 function draw() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -297,7 +335,9 @@ var interval = setInterval(draw, 10);
 
 
 // event listeners
-// ---------------
+// classes
+// ----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
 // mouse move
 document.addEventListener("mousemove", mouseMove, false);
@@ -340,14 +380,14 @@ function onClick(e) {
 // ----------
 
 // move
-document.getElementById("btn_move").onclick = function() {playerMove()};
+document.getElementById("btn_move").onclick = function() { playerMove() };
 function playerMove() {
     console.log("Player moves");
     game_state = "player_move";
 }
 
 // attack
-document.getElementById("btn_attack").onclick = function() {playerAttack()};
+document.getElementById("btn_attack").onclick = function() { playerAttack() };
 function playerAttack() {
     console.log("Player attacks");
     game_state = "player_attack";

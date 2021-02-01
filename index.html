@@ -8,27 +8,32 @@
 <title>Dungeon</title>
 <style>
     * {padding: 0; margin: 0}
-    canvas {background: #eee}
+    canvas {
+        background: #eee
+    }
 
     .vertical-menu {
-    width: 200px;
+        width: 200px;
     }
 
     .vertical-menu p {
-    background-color: #eee;
-    color: black;
-    display: block;
-    padding: 12px;
-    text-decoration: none;
+        display: block;
+        padding: 12px;
+        text-decoration: none;
+        background-color: #eee;
+    } 
+    .vertical-menu p.head {
+        background-color: #4CAF50;
+        color: white;
     }
-
-    .vertical-menu p:hover {
-    background-color: #ccc;
+    .vertical-menu p.enabled {
+        color: #000;
     }
-    
-    .vertical-menu p.active {
-    background-color: #4CAF50;
-    color: white;
+    .vertical-menu p.enabled:hover {
+        background-color: #ddd;
+    }   
+    .vertical-menu p.disabled {
+        color: #ddd;
     }
 </style>
 
@@ -36,10 +41,10 @@
 <body>
     <div style="width: 100%;">
     <div style="width: 10%; float: left;" class="vertical-menu">
-        <p class="active">Menu</p>
-        <p id="btn_move">Move</p>
-        <p id="btn_attack">Attack</p>
-        <p id="btn_endturn">End Turn</p>
+        <p class="head">Menu</p>
+        <p class="enabled" id="btn_move">Move</p>
+        <p class="enabled" id="btn_attack">Attack</p>
+        <p class="enabled" id="btn_endturn">End Turn</p>
       </div>
     <div style="margin-left: 10%;">
         <canvas id="canvas" width="960" height="640"></canvas>
