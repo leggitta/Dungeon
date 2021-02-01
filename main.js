@@ -168,7 +168,6 @@ class Character {
             this.movement -= r;
             this.destination_x = i * w;
             this.destination_y = j * h;
-            game_state = "player_move_animation";
         }
     }
     animate_move(next_state) {
@@ -183,6 +182,9 @@ class Character {
             this.y = this.destination_y;
             game_state = next_state;
         }
+        // update coordinates in grid space
+        this.i = Math.floor(this.x / w);
+        this.j = Math.floor(this.y / h);
     }
     attack(target, next_state) {
         // expend action (note: this will fail for multi-attack)
@@ -217,6 +219,8 @@ class Character {
     }
     end_turn() {
         this.movement = this.speed;
+        this.has_action = true;
+        this.has_bonus_action = true;
     }
 }
 
@@ -242,12 +246,25 @@ class Player extends Character {
     }
     move(i, j) {
         super.move(i, j);
-        
+
+        // set next state
+        game_state = "player_move_animation";
+
         // disable move buttons
         if (this.movement < w) {
             var btn = document.getElementById("btn_move");
             btn.classList.add('disabled');
             btn.classList.remove('enabled');
+        }
+    }
+    end_turn() {
+        super.end_turn();
+
+        // enable menu items
+        var btns = document.getElementsByClassName("disabled");
+        while (btns.length > 0) {
+            btns[0].classList.add('enabled');
+            btns[0].classList.remove('disabled');
         }
     }
 }
@@ -389,8 +406,13 @@ function playerMove() {
 // attack
 document.getElementById("btn_attack").onclick = function() { playerAttack() };
 function playerAttack() {
-    console.log("Player attacks");
-    game_state = "player_attack";
+    if (player.has_action) {
+        console.log("Player attacks");
+        game_state = "player_attack";
+    } else {
+        console.log("Already used action this turn");
+        game_state = "default";
+    }
 }
 
 // end turn
