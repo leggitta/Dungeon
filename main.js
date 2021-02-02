@@ -2,7 +2,6 @@ var canvas = document.getElementById("canvas");
 var ctx = canvas.getContext("2d");
 
 var counter = 0;
-var frame = 3;
 var w = h = 64;
 
 var game_state = "default";
@@ -116,6 +115,7 @@ class Map {
 
 class Character {
     constructor(name, i, j) {
+        this.name = name;
         this.i = i;
         this.j = j;
         this.x = i * w;
@@ -136,15 +136,20 @@ class Character {
         this.destination_x = -1;
         this.destination_y = -1;
 
+        // animation loop
+        this.loop = [3, 4];
+        this.current_frame = 0;
+
         // game stats
         this.armor_class = 10;
         this.hit_points = 4;
     }
     draw() {
+        // draw current frame
         ctx.drawImage(
             this.img,
             // sprite sheet coordinates
-            this.w * frame,
+            this.w * this.loop[this.current_frame],
             0, 
             this.w,
             this.h,
@@ -154,6 +159,30 @@ class Character {
             this.w,
             this.h
         )
+
+        // advance to next frame
+        if (counter % 10 == 0) {
+            this.current_frame += 1;
+            // console.log('next frame');
+
+            if (this.current_frame >= this.loop.length) {
+                // console.log('reset loop', this.loop, game_state);
+
+                // reset frame index
+                this.current_frame = 0;
+
+                // advance state (for end of animation sequence)
+                if (game_state == "player_attack_animation" & this.name == "player") {
+                    this.loop = [3, 4];
+                    game_state = "default";
+                    // console.log('end player attack animation');
+                } else if (game_state == "enemy_attack_animation" & this.name == "enemy") {
+                    this.loop = [3, 4];
+                    game_state = "default";
+                    // console.log('end player attack animation');
+                }
+            }
+        }
     }
     move(i, j) {
         // compute distance to destination
@@ -173,8 +202,8 @@ class Character {
     animate_move(next_state) {
         // animate movement toward destination
         var [r, phi] = vector(this.x, this.y, this.destination_x, this.destination_y);
-        var dx = 3 * Math.cos(phi);
-        var dy = 3 * Math.sin(phi);
+        var dx = 10 * Math.cos(phi);
+        var dy = 10 * Math.sin(phi);
         this.x += dx;
         this.y += dy;
         if (r < 5) {
@@ -227,6 +256,7 @@ class Character {
 class Player extends Character {
     draw() {
         super.draw();
+        
         if (game_state == "player_move_animation") {
             this.animate_move("default");
         }
@@ -234,6 +264,7 @@ class Player extends Character {
     attack_tile(i, j) {
         console.log(i, j, enemy.i, enemy.j);
         if (i == enemy.i & j == enemy.j) {
+            this.loop = [3, 4, 5, 4];
             this.attack(enemy, "player_attack_animation");
         }
     }
@@ -275,6 +306,7 @@ class Enemy extends Character {
         if (game_state == "enemy_move_animation") {
             this.animate_move("enemy_attack");
         } else if (game_state == "enemy_attack") {
+            this.loop = [3, 4, 5, 4];
             this.attack(player, "enemy_attack_animation");
         }
     }
@@ -342,13 +374,8 @@ function draw() {
     enemy.draw();
 
     counter += 1;
-    if (counter % 60 == 0) {
-        frame -= 1;
-    } else if (counter % 30 == 0) {
-        frame += 1;
-    }
 }
-var interval = setInterval(draw, 10);
+var interval = setInterval(draw, 50);
 
 
 // event listeners
