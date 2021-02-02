@@ -244,6 +244,11 @@ class Character {
         if (this.hit_points < 1) {
             this.img.src = '#';
             console.log('unconscious!');
+            if (this.name == "player") {
+                game_state = "player_loses";
+            } else if (this.name == "enemy") {
+                game_state = "player_wins";
+            }
         }
     }
     end_turn() {
@@ -370,9 +375,25 @@ let enemy = new Enemy("enemy", 1, 2);
 function draw() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     map.draw();
-    player.draw();
-    enemy.draw();
 
+    if (game_state == "player_wins") {
+        console.log("You Win!");
+        player.draw();
+    } else if (game_state == "player_loses") {
+        console.log("You Lose!");
+        enemy.draw();
+    } else {
+        if (player.hit_points > 0) {
+            player.draw();
+        } else {
+            game_state = "player_loses";
+        }
+        if (enemy.hit_points > 0) {
+            enemy.draw();
+        } else {
+            game_state = "player_wins";
+        }
+    }
     counter += 1;
 }
 var interval = setInterval(draw, 50);
