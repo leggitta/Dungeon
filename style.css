@@ -1,0 +1,28 @@
+* {padding: 0; margin: 0}
+canvas {
+    background: #eee
+}
+
+.vertical-menu {
+    width: 200px;
+}
+
+.vertical-menu p {
+    display: block;
+    padding: 12px;
+    text-decoration: none;
+    background-color: #eee;
+} 
+.vertical-menu p.head {
+    background-color: #aa0000;
+    color: white;
+}
+.vertical-menu p.enabled {
+    color: #000;
+}
+.vertical-menu p.enabled:hover {
+    background-color: #ddd;
+}   
+.vertical-menu p.disabled {
+    color: #ddd;
+}
